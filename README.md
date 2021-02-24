@@ -1,4 +1,4 @@
-# Course Project: Coivd 19
+# Course project: Coivd-19
 
 ![experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)
 
