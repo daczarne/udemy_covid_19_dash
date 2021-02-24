@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+dash = "*"
+plotly = "*"
+numpy = "*"
+pandas = "*"
+
+[dev-packages]
+ipykernel = "*"
+nbformat = "*"
+
+[requires]
+python_version = "3.9"
