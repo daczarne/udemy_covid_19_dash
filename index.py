@@ -285,9 +285,35 @@ app.layout = html.Div(
 				)
 			],
 			className = "row flex-display"
-		)
+		),
 		# (Third row):
-
+		html.Div(
+			[
+				# Column 1: Country selector
+				html.Div(
+					[
+						html.P(
+							children = "Select Country: ",
+							className = "fix_label",
+							style = {
+								"color": "white"
+							}
+						),
+						dcc.Dropdown(
+							id = "w_countries",
+							multi = False,
+							searchable = True,
+							value = "",
+							placeholder = "Select Country",
+							options = [{"label": c, "value": c} for c in (covid_data["Country/Region"].unique())],
+							className = "dcc_compon"
+						)
+					],
+					className = "create_container three columns"
+				)
+			],
+			className = "row flex-display"
+		)
 	]
 )
 
