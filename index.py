@@ -288,10 +288,10 @@ app.layout = html.Div(
 		),
 		# (Third row): Value boxes - Donut chart - Line & Bars
 		html.Div(
-			[
+			children = [
 				# (Column 1) Value boxes
 				html.Div(
-					[
+					children = [
 						# (Row 1) Country selector
 						html.P(
 							children = "Select Country: ",
@@ -367,7 +367,7 @@ app.layout = html.Div(
 				),
 				# (Column 2) Donut chart
 				html.Div(
-					[
+					children = [
 						# Donut chart
 						dcc.Graph(
 							id = "pie_chart",
@@ -383,7 +383,7 @@ app.layout = html.Div(
 				),
 				# (Columns 3 & 4) Line and bars plot
 				html.Div(
-					[
+					children = [
 						dcc.Graph(
 							id = "line_chart",
 							config = {
@@ -395,6 +395,18 @@ app.layout = html.Div(
 				)
 			],
 			className = "row flex-display"
+		),
+		# (Fourth Row)
+		html.Div(
+			children = [
+				dcc.Graph(
+					id = "map_chart",
+					config = {
+						"displayModeBar": "hover"
+					}
+				)
+			],
+			className = "create_container five columns"
 		)
 	]
 )
@@ -833,6 +845,66 @@ def update_line_chart(w_countries):
 				"x": 0.5,
 				"y": -0.7
 			}
+		)
+	}
+	# Return the figure
+	return fig
+
+
+# Map
+@app.callback(
+	Output(
+		component_id = "map_chart",
+		component_property = "figure"
+	),
+	Input(
+		component_id = "w_countries",
+		component_property = "value"
+	)
+)
+def update_map(w_countries):
+	# Filter the data
+	covid_data_4 = covid_data.groupby(["Lat", "Long", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	covid_data_5 = covid_data_4[covid_data_4["Country/Region"] == w_countries]
+	# Build the figure
+	fig = {
+		"data": [
+			go.Scattermapbox(
+				lon = covid_data_5["Long"],
+				lat = covid_data_5["Lat"],
+				mode = "markers",
+				marker = go.scattermapbox.Marker(
+					size = covid_data_5["confirmed"],
+					color = covid_data_5["confirmed"],
+					colorscale = "HSV",
+					showscale = False,
+					sizemode = "area",
+					opacity = 0.3
+				),
+				hoverinfo = "text",
+				hovertemplate = "<b>Country:</b> " + covid_data_5["Country/Region"].astype(str) + "<br>" +
+												"<b>Longitud:</b> " + covid_data_5["Long"].astype(str) + "<br>" +
+												"<b>Latitud:</b> " + covid_data_5["Lat"].astype(str) + "<br>" + 
+												"<b>Confirmed cases:</b> " + [f'{x:,.0f}' for x in covid_data_5["confirmed"]] + "<br>" + 
+												"<b>Deaths:</b> " + [f'{x:,.0f}' for x in covid_data_5["confirmed"]] + "<br>" + 
+												"<b>Recovered:</b> " + [f'{x:,.0f}' for x in covid_data_5["recovered"]] + "<br>" + 
+												"<b>Active:</b> " + [f'{x:,.0f}' for x in covid_data_5["active"]]
+			)
+		],
+		"layout": go.Layout(
+			hovermode = "x",
+			paper_bgcolor = "#1f2c56",
+			plot_bgcolor = "#1f2c56",
+			mapbox = dict(
+				accesstoken = "pk.eyJ1IjoicXM2MjcyNTI3IiwiYSI6ImNraGRuYTF1azAxZmIycWs0cDB1NmY1ZjYifQ.I1VJ3KjeM-S613FLv3mtkw",
+				center = go.layout.mapbox.center(
+					lat = "",
+					lon = ""
+				),
+				style = "dark",
+				zoom = ""
+			),
+			autosize = True
 		)
 	}
 	# Return the figure
