@@ -304,7 +304,7 @@ app.layout = html.Div(
 							id = "w_countries",
 							multi = False,
 							searchable = True,
-							value = "US",
+							value = "Yemen",
 							placeholder = "Select Country",
 							options = [{"label": c, "value": c} for c in (covid_data["Country/Region"].unique())],
 							className = "dcc_compon"
@@ -362,13 +362,26 @@ app.layout = html.Div(
 								"margin-top": "20px"
 							}
 						)
-
-
-
-
 					],
 					className = "create_container three columns"
+				),
+				# (Column 2) Donut chart
+				html.Div(
+					[
+						# Donut chart
+						dcc.Graph(
+							id = "pie_chart",
+							config = {
+								"displayModeBar": "hover"
+							}
+						)
+					],
+					className = "create_container four columns"
 				)
+				# (Columns 3 & 4) Line and bars plot
+
+
+
 			],
 			className = "row flex-display"
 		)
@@ -639,6 +652,72 @@ def update_active(w_countries):
 	# Return the figure
 	return fig
 
+# Donut chart
+@app.callback(
+	Output(
+		component_id = "pie_chart",
+		component_property = "figure"
+	),
+	Input(
+		component_id = "w_countries",
+		component_property = "value"
+	)
+)
+def update_graph(w_countries):
+	# Filter the data
+	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	# Calculate values
+	confirmed_value = covid_data_2[covid_data_2["Country/Region"] == w_countries]["confirmed"].iloc[-1]
+	deaths_value = covid_data_2[covid_data_2["Country/Region"] == w_countries]["deaths"].iloc[-1]
+	recovered_value = covid_data_2[covid_data_2["Country/Region"] == w_countries]["recovered"].iloc[-1]
+	active_value = covid_data_2[covid_data_2["Country/Region"] == w_countries]["active"].iloc[-1]
+	# List of colors
+	colors = ["orange", "#dd1e35", "green", "#e55467"]
+	# Build the figure
+	fig = {
+		"data": [
+			go.Pie(
+				labels = ["Confirmed", "Deaths", "Recovered", "Active"],
+				values = [confirmed_value, deaths_value, recovered_value, active_value],
+				marker = {
+					"colors": colors
+				},
+				hoverinfo = "label+value+percent",
+				textinfo = "label+value",
+				hole = 0.7
+			)
+		],
+		"layout": go.Layout(
+			title = {
+				"text": f"Total cases {w_countries}",
+				"y": 0.93,
+				"x": 0.5,
+				"xanchor": "center",
+				"yanchor": "top"
+			},
+			titlefont = {
+				"color": "white",
+				"size": 20
+			},
+			font = {
+				"family": "sans-serif",
+				"color": "white",
+				"size": 12
+			},
+			hovermode = "closest",
+			paper_bgcolor = "#1f2c56",
+			plot_bgcolor = "#1f2c56",
+			legend = {
+				"orientation": "h",
+				"bgcolor": "#1f2c56",
+				"xanchor": "center",
+				"x": 0.5,
+				"y": -0.7
+			}
+		)
+	}
+	# Return the figure
+	return fig
 
 
 # Run the app
