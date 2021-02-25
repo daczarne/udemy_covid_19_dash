@@ -56,6 +56,12 @@ covid_data["recovered"] = covid_data["recovered"].fillna(0)
 covid_data["active"] = covid_data["confirmed"] - covid_data["deaths"] - covid_data["recovered"]
 covid_data["date"] = pd.to_datetime(covid_data["date"])
 
+# Daily totals
+covid_data_1 = covid_data.groupby(["date"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+
+# Helper functions
+def intraday_variation(a, b):
+	return round((1 - b / a) * 100, 2)
 
 # Instanciate the app
 app = dash.Dash(__name__, )
@@ -63,7 +69,7 @@ app = dash.Dash(__name__, )
 # Build the layout
 app.layout = html.Div(
 	children = [
-		# Header with: Logo - Title - Last updated
+		# (First row) Header: Logo - Title - Last updated
 		html.Div(
 			children = [
 				# Logo
@@ -125,7 +131,162 @@ app.layout = html.Div(
 			style = {
 				"margin-bottom": "25px"
 			}
+		),
+		# (Second row) Cards: total global values
+		html.Div(
+			children = [
+				# (Column 1): Global cases
+				html.Div(
+					children = [
+						# Title
+						html.H6(
+							children = "Global cases",
+							style = {
+								"textAlign": "center",
+								"color": "white"
+							}
+						),
+						# Total value
+						html.P(
+							children = f"{covid_data_1['confirmed'].iloc[-1]:,.0f}",
+							style = {
+								"textAlign": "center",
+								"color": "orange",
+								"fontSize": 40
+							}
+						),
+						# New cases
+						html.P(
+							children = "new: " +
+								f"{covid_data_1['confirmed'].iloc[-1] - covid_data_1['confirmed'].iloc[-2]:,.0f}" +
+								" (" +
+								f"{round(((covid_data_1['confirmed'].iloc[-1] - covid_data_1['confirmed'].iloc[-2]) / covid_data_1['confirmed'].iloc[-1]) * 100, 2)}" +
+								"%)",
+							style = {
+								"textAlign": "center",
+								"color": "orange",
+								"fontSize": 15,
+								"margin-top": "-18px"
+							}
+						)
+					],
+					className = "card_container three columns"
+				),
+				# (Column 2): Global deaths
+				html.Div(
+					children = [
+						# Title
+						html.H6(
+							children = "Global deaths",
+							style = {
+								"textAlign": "center",
+								"color": "white"
+							}
+						),
+						# Total value
+						html.P(
+							children = f"{covid_data_1['deaths'].iloc[-1]:,.0f}",
+							style = {
+								"textAlign": "center",
+								"color": "#dd1e35",
+								"fontSize": 40
+							}
+						),
+						# New deaths
+						html.P(
+							children = "new: " +
+								f"{covid_data_1['deaths'].iloc[-1] - covid_data_1['deaths'].iloc[-2]:,.0f}" +
+								" (" +
+								f"{round(((covid_data_1['deaths'].iloc[-1] - covid_data_1['deaths'].iloc[-2]) / covid_data_1['deaths'].iloc[-1]) * 100, 2)}" +
+								"%)",
+							style = {
+								"textAlign": "center",
+								"color": "#dd1e35",
+								"fontSize": 15,
+								"margin-top": "-18px"
+							}
+						)
+					],
+					className = "card_container three columns"
+				),
+				# (Column 3): Global recovered
+				html.Div(
+					children = [
+						# Title
+						html.H6(
+							children = "Global recovered",
+							style = {
+								"textAlign": "center",
+								"color": "white"
+							}
+						),
+						# Total recovered
+						html.P(
+							children = f"{covid_data_1['recovered'].iloc[-1]:,.0f}",
+							style = {
+								"textAlign": "center",
+								"color": "green",
+								"fontSize": 40
+							}
+						),
+						# New recovered
+						html.P(
+							children = "new: " +
+								f"{covid_data_1['recovered'].iloc[-1] - covid_data_1['recovered'].iloc[-2]:,.0f}" +
+								" (" +
+								f"{round(((covid_data_1['recovered'].iloc[-1] - covid_data_1['recovered'].iloc[-2]) / covid_data_1['recovered'].iloc[-1]) * 100, 2)}" +
+								"%)",
+							style = {
+								"textAlign": "center",
+								"color": "green",
+								"fontSize": 15,
+								"margin-top": "-18px"
+							}
+						)
+					],
+					className = "card_container three columns"
+				),
+				# (Column 4): Global active
+				html.Div(
+					children = [
+						# Title
+						html.H6(
+							children = "Global active",
+							style = {
+								"textAlign": "center",
+								"color": "white"
+							}
+						),
+						# Total v
+						html.P(
+							children = f"{covid_data_1['active'].iloc[-1]:,.0f}",
+							style = {
+								"textAlign": "center",
+								"color": "#e55467",
+								"fontSize": 40
+							}
+						),
+						# New active
+						html.P(
+							children = "new: " +
+								f"{covid_data_1['active'].iloc[-1] - covid_data_1['active'].iloc[-2]:,.0f}" +
+								" (" +
+								f"{round(((covid_data_1['active'].iloc[-1] - covid_data_1['active'].iloc[-2]) / covid_data_1['active'].iloc[-1]) * 100, 2)}" +
+								"%)",
+							style = {
+								"textAlign": "center",
+								"color": "#e55467",
+								"fontSize": 15,
+								"margin-top": "-18px"
+							}
+						)
+					],
+					className = "card_container three columns"
+				)
+			],
+			className = "row flex-display"
 		)
+
 	]
 )
 
