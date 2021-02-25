@@ -63,8 +63,10 @@ app = dash.Dash(__name__, )
 # Build the layout
 app.layout = html.Div(
 	children = [
+		# Header with: Logo - Title - Last updated
 		html.Div(
 			children = [
+				# Logo
 				html.Div(
 					children = [
 						html.Img(
@@ -81,6 +83,7 @@ app.layout = html.Div(
 				),
 				html.Div(
 					children = [
+						# Title and subtitle
 						html.Div(
 							children = [
 								html.H3(
@@ -103,11 +106,14 @@ app.layout = html.Div(
 					className = "one-half column",
 					id = 'title'
 				),
+				# Last updated
 				html.Div(
-					[
+					children = [
 						html.H6(
-							"Last Updated",
-							style = {}
+							children = "Last Updated " + str(covid_data["date"].iloc[-1].strftime("%B %d, %Y")),
+							style = {
+								"color": "orange"
+							}
 						)
 					],
 					className = "one-thid column",
