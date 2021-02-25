@@ -377,11 +377,19 @@ app.layout = html.Div(
 						)
 					],
 					className = "create_container four columns"
-				)
+				),
 				# (Columns 3 & 4) Line and bars plot
-
-
-
+				html.Div(
+					[
+						dcc.Graph(
+							id = "line_chart",
+							config = {
+								"displayModeBar": "hover"
+							}
+						)
+					],
+					className = "create_containter five columns"
+				)
 			],
 			className = "row flex-display"
 		)
@@ -684,7 +692,9 @@ def update_graph(w_countries):
 				},
 				hoverinfo = "label+value+percent",
 				textinfo = "label+value",
-				hole = 0.7
+				hole = 0.7,
+				rotation = 45,
+				insidetextorientation = "radial"
 			)
 		],
 		"layout": go.Layout(
@@ -713,6 +723,115 @@ def update_graph(w_countries):
 				"xanchor": "center",
 				"x": 0.5,
 				"y": -0.7
+			}
+		)
+	}
+	# Return the figure
+	return fig
+
+
+# Line and bars chart
+@app.callback(
+	Output(
+		component_id = "line_chart",
+		component_property = "figure"
+	),
+	Input(
+		component_id = "w_countries",
+		component_property = "value"
+	)
+)
+def update_graph(w_countries):
+	# Filter the data
+	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	covid_data_3 = covid_data_2[covid_data_2["Country/Region"] == w_countries][["Country/Region", "date", "confirmed"]].reset_index()
+	covid_data_3["daily_confirmed"] = covid_data_3["confirmed"] - covid_data_3["confirmed"].shift(1)
+	covid_data_3["rolling_avg"] = covid_data_3["daily_confirmed"].rolling(window = 7).mean()
+	# Build the figure
+	fig = {
+		"data": [
+			go.Bar(
+				x = covid_data_3["date"].tail(30),
+				y = covid_data_3["daily_confirmed"].tail(30),
+				name = "Daily confirmed cases",
+				marker = {
+					"color": "orange"
+				},
+				hoverinfo = "text",
+				hovertemplate = "<b>Date</b>: %{x} <br><b>Daily confirmed</b>: %{y:,.0f}<extra></extra>"
+			),
+			go.Scatter(
+				x = covid_data_3["date"].tail(30),
+				y = covid_data_3["rolling_avg"].tail(30),
+				name = "Rolling avg. of the last 7 days - daily confirmed cases",
+				mode = "lines",
+				line = {
+					"width": 3,
+					"color": "#ff00ff"
+				},
+				hoverinfo = "text",
+				hovertemplate = "<b>Date</b>: %{x} <br><b>Rolling Avg.</b>: %{y:,.0f}<extra></extra>"
+			)
+		],
+		"layout": go.Layout(
+			title = {
+				"text": f"Last 30 days daily confirmed cases: {w_countries}",
+				"y": 0.93,
+				"x": 0.5,
+				"xanchor": "center",
+				"yanchor": "top"
+			},
+			titlefont = {
+				"color": "white",
+				"size": 20
+			},
+			xaxis = {
+				"title": "<b>Date</b>",
+				"color": "white",
+				"showline": True,
+				"showgrid": True,
+				"showticklabels": True,
+				"linecolor": "white",
+				"linewidth": 1,
+				"ticks": "outside",
+				"tickfont": {
+					"family": "Aerial",
+					"color": "white",
+					"size": 12
+				}
+			},
+			yaxis = {
+				"title": "<b>Confirmed cases</b>",
+				"color": "white",
+				"showline": True,
+				"showgrid": True,
+				"showticklabels": True,
+				"linecolor": "white",
+				"linewidth": 1,
+				"ticks": "outside",
+				"tickfont": {
+					"family": "Aerial",
+					"color": "white",
+					"size": 12
+				}
+			},
+			font = {
+				"family": "sans-serif",
+				"color": "white",
+				"size": 12
+			},
+			hovermode = "closest",
+			paper_bgcolor = "#1f2c56",
+			plot_bgcolor = "#1f2c56",
+			legend = {
+				"orientation": "h",
+				"bgcolor": "#1f2c56",
+				"xanchor": "center",
+				"x": 0.5,
+				"y": -0.7
+			},
+			margin = {
+				"r": 0
 			}
 		)
 	}
