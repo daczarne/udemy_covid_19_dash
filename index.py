@@ -132,7 +132,7 @@ app.layout = html.Div(
 				"margin-bottom": "25px"
 			}
 		),
-		# (Second row) Cards: total global values
+		# (Second row) Cards: Global cases - Global deaths - Global recovered - Global active
 		html.Div(
 			children = [
 				# (Column 1): Global cases
@@ -286,6 +286,7 @@ app.layout = html.Div(
 			],
 			className = "row flex-display"
 		)
+		# (Third row):
 
 	]
 )
