@@ -388,7 +388,7 @@ app.layout = html.Div(
 							}
 						)
 					],
-					className = "create_containter five columns"
+					className = "create_container five columns"
 				)
 			],
 			className = "row flex-display"
