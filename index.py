@@ -286,12 +286,13 @@ app.layout = html.Div(
 			],
 			className = "row flex-display"
 		),
-		# (Third row):
+		# (Third row): Value boxes - Donut chart - Line & Bars
 		html.Div(
 			[
-				# Column 1: Country selector
+				# (Column 1) Value boxes
 				html.Div(
 					[
+						# (Row 1) Country selector
 						html.P(
 							children = "Select Country: ",
 							className = "fix_label",
@@ -303,11 +304,68 @@ app.layout = html.Div(
 							id = "w_countries",
 							multi = False,
 							searchable = True,
-							value = "",
+							value = "US",
 							placeholder = "Select Country",
 							options = [{"label": c, "value": c} for c in (covid_data["Country/Region"].unique())],
 							className = "dcc_compon"
+						),
+						# (Row 2) New cases title
+						html.P(
+							children = "New cases: " + " " + str(covid_data["date"].iloc[-1].strftime("%B %d, %Y")),
+							className = "fix_label",
+							style = {
+								"textAlign": "center",
+								"color": "white"
+							}
+						),
+						# (Row 3) New confirmed
+						dcc.Graph(
+							id = "confirmed",
+							config = {
+								"displayModeBar": False
+							},
+							className = "dcc_compo",
+							style = {
+								"margin-top": "20px"
+							}
+						),
+						# (Row 4) New deaths
+						dcc.Graph(
+							id = "deaths",
+							config = {
+								"displayModeBar": False
+							},
+							className = "dcc_compo",
+							style = {
+								"margin-top": "20px"
+							}
+						),
+						# (Row 5) New recovered
+						dcc.Graph(
+							id = "recovered",
+							config = {
+								"displayModeBar": False
+							},
+							className = "dcc_compo",
+							style = {
+								"margin-top": "20px"
+							}
+						),
+						# (Row 6) New active
+						dcc.Graph(
+							id = "active",
+							config = {
+								"displayModeBar": False
+							},
+							className = "dcc_compo",
+							style = {
+								"margin-top": "20px"
+							}
 						)
+
+
+
+
 					],
 					className = "create_container three columns"
 				)
@@ -318,6 +376,269 @@ app.layout = html.Div(
 )
 
 # Build the callbacks
+
+# New confirmed cases value box
+@app.callback(
+	Output(
+		component_id = "confirmed",
+		component_property = "figure"
+	),
+	Input(
+		component_id = "w_countries",
+		component_property = "value"
+	)
+)
+def update_confirmed(w_countries):
+	# Filter the data
+	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	# Calculate values
+	value_confirmed = covid_data_2[covid_data_2["Country/Region"] == w_countries]["confirmed"].iloc[-1] - \
+										covid_data_2[covid_data_2["Country/Region"] == w_countries]["confirmed"].iloc[-2]
+	delta_confirmed = covid_data_2[covid_data_2["Country/Region"] == w_countries]["confirmed"].iloc[-1] - \
+									  covid_data_2[covid_data_2["Country/Region"] == w_countries]["confirmed"].iloc[-3]
+	# Build the figure
+	fig = {
+		"data": [
+			go.Indicator(
+				mode = "number+delta",
+				value = value_confirmed,
+				delta = {
+					"reference": delta_confirmed,
+					"position": "right",
+					"valueformat": ",g",
+					"relative": False,
+					"font": {
+						"size": 15
+					}
+				},
+				number = {
+					"valueformat": ",",
+					"font": {
+						"size": 20
+					}
+				},
+				domain = {
+					"y": [0, 1],
+					"x": [0, 1]
+				}
+			)
+		],
+		"layout": go.Layout(
+			title = {
+				"text": "New confirmed",
+				"y": 1,
+				"x": 0.5,
+				"xanchor": "center",
+				"yanchor": "top"
+			},
+			font = {
+				"color": "orange"
+			},
+			paper_bgcolor = "#1f2c56",
+			plot_bgcolor = "#1f2c56",
+			height = 50
+		)
+	}
+	# Return the figure
+	return fig
+
+# Deaths value box
+@app.callback(
+	Output(
+		component_id = "deaths",
+		component_property = "figure"
+	),
+	Input(
+		component_id = "w_countries",
+		component_property = "value"
+	)
+)
+def update_deaths(w_countries):
+	# Filter the data
+	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	# Calculate values
+	value_deaths = covid_data_2[covid_data_2["Country/Region"] == w_countries]["deaths"].iloc[-1] - \
+										covid_data_2[covid_data_2["Country/Region"] == w_countries]["deaths"].iloc[-2]
+	delta_deaths = covid_data_2[covid_data_2["Country/Region"] == w_countries]["deaths"].iloc[-1] - \
+									  covid_data_2[covid_data_2["Country/Region"] == w_countries]["deaths"].iloc[-3]
+	# Build the figure
+	fig = {
+		"data": [
+			go.Indicator(
+				mode = "number+delta",
+				value = value_deaths,
+				delta = {
+					"reference": delta_deaths,
+					"position": "right",
+					"valueformat": ",g",
+					"relative": False,
+					"font": {
+						"size": 15
+					}
+				},
+				number = {
+					"valueformat": ",",
+					"font": {
+						"size": 20
+					}
+				},
+				domain = {
+					"y": [0, 1],
+					"x": [0, 1]
+				}
+			)
+		],
+		"layout": go.Layout(
+			title = {
+				"text": "New deaths",
+				"y": 1,
+				"x": 0.5,
+				"xanchor": "center",
+				"yanchor": "top"
+			},
+			font = {
+				"color": "#dd1e35"
+			},
+			paper_bgcolor = "#1f2c56",
+			plot_bgcolor = "#1f2c56",
+			height = 50
+		)
+	}
+	# Return the figure
+	return fig
+
+
+# Recovered value box
+@app.callback(
+	Output(
+		component_id = "recovered",
+		component_property = "figure"
+	),
+	Input(
+		component_id = "w_countries",
+		component_property = "value"
+	)
+)
+def update_recovered(w_countries):
+	# Filter the data
+	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	# Calculate values
+	value_recovered = covid_data_2[covid_data_2["Country/Region"] == w_countries]["recovered"].iloc[-1] - \
+										covid_data_2[covid_data_2["Country/Region"] == w_countries]["recovered"].iloc[-2]
+	delta_recovered = covid_data_2[covid_data_2["Country/Region"] == w_countries]["recovered"].iloc[-1] - \
+									  covid_data_2[covid_data_2["Country/Region"] == w_countries]["recovered"].iloc[-3]
+	# Build the figure
+	fig = {
+		"data": [
+			go.Indicator(
+				mode = "number+delta",
+				value = value_recovered,
+				delta = {
+					"reference": delta_recovered,
+					"position": "right",
+					"valueformat": ",g",
+					"relative": False,
+					"font": {
+						"size": 15
+					}
+				},
+				number = {
+					"valueformat": ",",
+					"font": {
+						"size": 20
+					}
+				},
+				domain = {
+					"y": [0, 1],
+					"x": [0, 1]
+				}
+			)
+		],
+		"layout": go.Layout(
+			title = {
+				"text": "New recovered",
+				"y": 1,
+				"x": 0.5,
+				"xanchor": "center",
+				"yanchor": "top"
+			},
+			font = {
+				"color": "green"
+			},
+			paper_bgcolor = "#1f2c56",
+			plot_bgcolor = "#1f2c56",
+			height = 50
+		)
+	}
+	# Return the figure
+	return fig
+
+
+# Recovered value box
+@app.callback(
+	Output(
+		component_id = "active",
+		component_property = "figure"
+	),
+	Input(
+		component_id = "w_countries",
+		component_property = "value"
+	)
+)
+def update_active(w_countries):
+	# Filter the data
+	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	# Calculate values
+	value_active = covid_data_2[covid_data_2["Country/Region"] == w_countries]["active"].iloc[-1] - \
+								 covid_data_2[covid_data_2["Country/Region"] == w_countries]["active"].iloc[-2]
+	delta_active = covid_data_2[covid_data_2["Country/Region"] == w_countries]["active"].iloc[-1] - \
+								 covid_data_2[covid_data_2["Country/Region"] == w_countries]["active"].iloc[-3]
+	# Build the figure
+	fig = {
+		"data": [
+			go.Indicator(
+				mode = "number+delta",
+				value = value_active,
+				delta = {
+					"reference": delta_active,
+					"position": "right",
+					"valueformat": ",g",
+					"relative": False,
+					"font": {
+						"size": 15
+					}
+				},
+				number = {
+					"valueformat": ",",
+					"font": {
+						"size": 20
+					}
+				},
+				domain = {
+					"y": [0, 1],
+					"x": [0, 1]
+				}
+			)
+		],
+		"layout": go.Layout(
+			title = {
+				"text": "New active",
+				"y": 1,
+				"x": 0.5,
+				"xanchor": "center",
+				"yanchor": "top"
+			},
+			font = {
+				"color": "#e55467"
+			},
+			paper_bgcolor = "#1f2c56",
+			plot_bgcolor = "#1f2c56",
+			height = 50
+		)
+	}
+	# Return the figure
+	return fig
+
 
 
 # Run the app
