@@ -376,7 +376,10 @@ app.layout = html.Div(
 							}
 						)
 					],
-					className = "create_container four columns"
+					className = "create_container four columns",
+					style = {
+						"maxWidth": "400px"
+					}
 				),
 				# (Columns 3 & 4) Line and bars plot
 				html.Div(
@@ -671,7 +674,7 @@ def update_active(w_countries):
 		component_property = "value"
 	)
 )
-def update_graph(w_countries):
+def update_pie_chart(w_countries):
 	# Filter the data
 	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
 	# Calculate values
@@ -741,7 +744,7 @@ def update_graph(w_countries):
 		component_property = "value"
 	)
 )
-def update_graph(w_countries):
+def update_line_chart(w_countries):
 	# Filter the data
 	covid_data_2 = covid_data.groupby(["date", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
 	covid_data_3 = covid_data_2[covid_data_2["Country/Region"] == w_countries][["Country/Region", "date", "confirmed"]].reset_index()
@@ -829,9 +832,6 @@ def update_graph(w_countries):
 				"xanchor": "center",
 				"x": 0.5,
 				"y": -0.7
-			},
-			margin = {
-				"r": 0
 			}
 		)
 	}
