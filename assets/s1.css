@@ -591,6 +591,10 @@ there.
     height: 45px !important;
   }
 
+  #title {
+    margin-bottom: 10px;
+  }
+
 }
 
 /* Larger than tablet */

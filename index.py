@@ -62,11 +62,11 @@ app = dash.Dash(__name__, )
 
 # Build the layout
 app.layout = html.Div(
-	[
+	children = [
 		html.Div(
-			[
+			children = [
 				html.Div(
-					[
+					children = [
 						html.Img(
 							src = app.get_asset_url("corona-logo-1.jpg"),
 							id = "corona-image",
@@ -78,6 +78,40 @@ app.layout = html.Div(
 						)
 					],
 					className = "one-third column"
+				),
+				html.Div(
+					children = [
+						html.Div(
+							children = [
+								html.H3(
+									children = "Covid-19",
+									style = {
+										"margin-bottom": "0",
+										"color": "white"
+									}
+								),
+								html.H5(
+									children = "Track Covid-19 cases",
+									style = {
+										"margin-bottom": "0",
+										"color": "white"
+									}
+								)
+							]
+						)
+					],
+					className = "one-half column",
+					id = 'title'
+				),
+				html.Div(
+					[
+						html.H6(
+							"Last Updated",
+							style = {}
+						)
+					],
+					className = "one-thid column",
+					id = "title1"
 				)
 			],
 			id = "header",
@@ -86,12 +120,7 @@ app.layout = html.Div(
 				"margin-bottom": "25px"
 			}
 		)
-	],
-	id = "mainContainer",
-	style = {
-		"display": "flex",
-		"flex-direction": "column"
-	}
+	]
 )
 
 # Build the callbacks
