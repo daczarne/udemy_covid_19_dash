@@ -59,12 +59,12 @@ covid_data["date"] = pd.to_datetime(covid_data["date"])
 # Daily totals
 covid_data_1 = covid_data.groupby(["date"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
 
-# Helper functions
-def intraday_variation(a, b):
-	return round((1 - b / a) * 100, 2)
+# Create dict of list
+covid_data_list = covid_data[["Country/Region", "Lat", "Long"]]
+dict_of_locations = covid_data_list.set_index("Country/Region")[["Lat", "Long"]].T.to_dict("dict")
 
 # Instanciate the app
-app = dash.Dash(__name__, )
+app = dash.Dash(__name__, meta_tags = [{"name": "viewport", "content": "width=device-width"}])
 
 # Build the layout
 app.layout = html.Div(
@@ -304,7 +304,7 @@ app.layout = html.Div(
 							id = "w_countries",
 							multi = False,
 							searchable = True,
-							value = "Yemen",
+							value = "Uruguay",
 							placeholder = "Select Country",
 							options = [{"label": c, "value": c} for c in (covid_data["Country/Region"].unique())],
 							className = "dcc_compon"
@@ -396,17 +396,22 @@ app.layout = html.Div(
 			],
 			className = "row flex-display"
 		),
-		# (Fourth Row)
+		# (Fourth Row) Map
 		html.Div(
 			children = [
-				dcc.Graph(
-					id = "map_chart",
-					config = {
-						"displayModeBar": "hover"
-					}
+				html.Div(
+					children = [
+						dcc.Graph(
+							id = "map_chart",
+							config = {
+								"displayModeBar": "hover"
+							}
+						)
+					],
+					className = "create_container1 twelve columns"
 				)
 			],
-			className = "create_container five columns"
+			className = "row flex-display"
 		)
 	]
 )
@@ -864,8 +869,13 @@ def update_line_chart(w_countries):
 )
 def update_map(w_countries):
 	# Filter the data
-	covid_data_4 = covid_data.groupby(["Lat", "Long", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].sum().reset_index()
+	covid_data_4 = covid_data.groupby(["Lat", "Long", "Country/Region"])[["confirmed", "deaths", "recovered", "active"]].max().reset_index()
 	covid_data_5 = covid_data_4[covid_data_4["Country/Region"] == w_countries]
+	# Get zoom
+	if w_countries:
+		zoom = 2
+		zoom_lat = dict_of_locations[w_countries]["Lat"]
+		zoom_long = dict_of_locations[w_countries]["Long"]
 	# Build the figure
 	fig = {
 		"data": [
@@ -874,7 +884,7 @@ def update_map(w_countries):
 				lat = covid_data_5["Lat"],
 				mode = "markers",
 				marker = go.scattermapbox.Marker(
-					size = covid_data_5["confirmed"],
+					size = covid_data_5["confirmed"] / 1500,
 					color = covid_data_5["confirmed"],
 					colorscale = "HSV",
 					showscale = False,
@@ -883,26 +893,30 @@ def update_map(w_countries):
 				),
 				hoverinfo = "text",
 				hovertemplate = "<b>Country:</b> " + covid_data_5["Country/Region"].astype(str) + "<br>" +
-												"<b>Longitud:</b> " + covid_data_5["Long"].astype(str) + "<br>" +
-												"<b>Latitud:</b> " + covid_data_5["Lat"].astype(str) + "<br>" + 
 												"<b>Confirmed cases:</b> " + [f'{x:,.0f}' for x in covid_data_5["confirmed"]] + "<br>" + 
 												"<b>Deaths:</b> " + [f'{x:,.0f}' for x in covid_data_5["confirmed"]] + "<br>" + 
 												"<b>Recovered:</b> " + [f'{x:,.0f}' for x in covid_data_5["recovered"]] + "<br>" + 
-												"<b>Active:</b> " + [f'{x:,.0f}' for x in covid_data_5["active"]]
+												"<b>Active:</b> " + [f'{x:,.0f}' for x in covid_data_5["active"]] + "<extra></extra>"
 			)
 		],
 		"layout": go.Layout(
 			hovermode = "x",
 			paper_bgcolor = "#1f2c56",
 			plot_bgcolor = "#1f2c56",
+			margin = {
+				"r": 0,
+				"l": 0,
+				"t": 0,
+				"b": 0
+			},
 			mapbox = dict(
 				accesstoken = "pk.eyJ1IjoicXM2MjcyNTI3IiwiYSI6ImNraGRuYTF1azAxZmIycWs0cDB1NmY1ZjYifQ.I1VJ3KjeM-S613FLv3mtkw",
-				center = go.layout.mapbox.center(
-					lat = "",
-					lon = ""
+				center = go.layout.mapbox.Center(
+					lat = zoom_lat,
+					lon = zoom_long
 				),
 				style = "dark",
-				zoom = ""
+				zoom = zoom
 			),
 			autosize = True
 		)
