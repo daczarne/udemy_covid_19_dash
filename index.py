@@ -413,7 +413,12 @@ app.layout = html.Div(
 			],
 			className = "row flex-display"
 		)
-	]
+	],
+	id = "mainContainer",
+	style = {
+		"display": "flex",
+		"flex-direction": "column"
+	}
 )
 
 # Build the callbacks
