@@ -12,7 +12,11 @@ insert_final_newline = true
 charset = utf-8
 
 # 2 space tab indentation
-[*.{py, ipynb}]
+[*.py]
+indent_style = tab
+indent_size = 2
+
+[*.ipynb]
 indent_style = tab
 indent_size = 2
 
