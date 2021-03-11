@@ -8,11 +8,11 @@ insert_final_newline = true
 
 # Matches multiple files with brace expansion notation
 # Set default charset
-[*.{py}]
+[*.{py, ipynb}]
 charset = utf-8
 
 # 2 space tab indentation
-[*.py]
+[*.{py, ipynb}]
 indent_style = tab
 indent_size = 2
 
